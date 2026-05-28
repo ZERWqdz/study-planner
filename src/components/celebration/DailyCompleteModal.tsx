@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { MOTIVATIONAL_QUOTES } from '@/utils/constants';
 
@@ -18,7 +19,7 @@ export function DailyCompleteModal({ isOpen, onClose, completedTasks, totalMinut
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.05, duration: 0.3 }}
         >
-          <div className="text-4xl mb-4">✦</div>
+          <Sparkles size={40} strokeWidth={1} className="text-text-primary mx-auto mb-4" />
           <h2 className="text-lg font-semibold text-text-primary mb-1 tracking-tight">Today complete</h2>
           <p className="text-[13px] text-text-tertiary mb-6">Keep the momentum going</p>
         </motion.div>
@@ -47,6 +48,8 @@ export function DailyCompleteModal({ isOpen, onClose, completedTasks, totalMinut
 
         <motion.button
           onClick={onClose}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
           className="px-8 py-2.5 rounded-md bg-text-primary text-bg-primary text-[13px] font-medium hover:opacity-90 transition-opacity"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
         >

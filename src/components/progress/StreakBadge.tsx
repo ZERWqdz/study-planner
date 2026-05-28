@@ -1,3 +1,5 @@
+import { Flame } from 'lucide-react';
+
 interface StreakBadgeProps { streak: number; size?: 'sm' | 'md' | 'lg' }
 
 export function StreakBadge({ streak, size = 'md' }: StreakBadgeProps) {
@@ -8,7 +10,8 @@ export function StreakBadge({ streak, size = 'md' }: StreakBadgeProps) {
     <span className={`inline-flex items-center rounded-md font-mono font-medium transition-colors ${sz} ${
       active ? 'bg-accent-muted text-accent' : 'text-text-tertiary'
     }`}>
-      {active ? '🔥' : '·'} {streak}d
+      <Flame size={size === 'sm' ? 12 : size === 'md' ? 14 : 16} strokeWidth={1.5} className={active ? 'text-accent' : 'text-text-tertiary'} />
+      {streak}d
     </span>
   );
 }

@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+
 interface BottomNavProps {
   activeTab: 'home' | 'calendar' | 'stats';
   onTabChange: (tab: 'home' | 'calendar' | 'stats') => void;
@@ -15,15 +17,24 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
       <div className="absolute inset-0 bg-bg-primary/90 backdrop-blur-xl border-t border-border-primary" />
       <div className="relative flex items-center justify-around h-14">
         {tabs.map(({ id, label }) => (
-          <button
+          <motion.button
             key={id}
             onClick={() => onTabChange(id)}
-            className={`text-[13px] font-medium transition-colors ${
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`text-[13px] font-medium transition-colors relative ${
               activeTab === id ? 'text-text-primary' : 'text-text-tertiary hover:text-text-secondary'
             }`}
           >
             {label}
-          </button>
+            {activeTab === id && (
+              <motion.span
+                layoutId="nav-indicator"
+                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-text-primary"
+                transition={{ duration: 0.2 }}
+              />
+            )}
+          </motion.button>
         ))}
       </div>
     </nav>

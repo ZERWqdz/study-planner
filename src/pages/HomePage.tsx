@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { getFullPlan, getTodayPlan } from '@/data/planGenerator';
+import { motion } from 'framer-motion';
+import { getDynamicPlan, getTodayPlan } from '@/data/planGenerator';
 import { useStudy } from '@/store/studyStore';
 import { DayCard } from '@/components/plan/DayCard';
 import { PhaseSection } from '@/components/plan/PhaseSection';
@@ -10,12 +10,10 @@ import { useStudyProgress, isTodayFullyComplete } from '@/hooks/useStudyProgress
 import { useIsDesktop } from '@/hooks/useMediaQuery';
 import { getTodayStr, formatDisplayDate, getWeekdayName, daysBetween } from '@/utils/date';
 import { PHASES, SUBJECTS, EXAM_DATE } from '@/utils/constants';
-import type { PhaseId, SubjectId } from '@/types';
+import type { PhaseId, SubjectId, Task } from '@/types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { SUBJECT_BY_ID } from '@/utils/constants';
-import type { Task } from '@/types';
 
-// -- Today's task line --
 function TodayTask({ task, completed, onToggle }: { task: Task; completed: boolean; onToggle: () => void }) {
   const subj = SUBJECT_BY_ID[task.subjectId];
   const h = Math.floor(task.estimatedMinutes / 60);
@@ -23,11 +21,14 @@ function TodayTask({ task, completed, onToggle }: { task: Task; completed: boole
   const time = h > 0 ? `${h}h${m > 0 ? ` ${m}m` : ''}` : `${m}m`;
 
   return (
-    <div className={`flex items-center gap-3 py-2.5 px-3 rounded-md transition-colors ${
-      completed ? 'opacity-40' : 'hover:bg-bg-hover cursor-pointer'
-    }`} onClick={completed ? undefined : onToggle}>
+    <div
+      className={`flex items-center gap-3 py-2.5 px-3 rounded-md transition-colors ${
+        completed ? 'opacity-55' : 'hover:bg-bg-hover cursor-pointer'
+      }`}
+      onClick={completed ? undefined : onToggle}
+    >
       <Checkbox checked={completed} onChange={onToggle} color={subj?.color} size={18} />
-      <span className={`flex-1 text-[14px] ${completed ? 'line-through text-text-tertiary' : 'text-text-primary'}`}>
+      <span className={`flex-1 text-[14px] ${completed ? 'line-through text-text-tertiary' : task.carryOver ? 'text-accent-hover' : 'text-text-primary'}`}>
         {task.title}
       </span>
       <span className="text-[12px] text-text-tertiary font-mono">{time}</span>
@@ -35,7 +36,6 @@ function TodayTask({ task, completed, onToggle }: { task: Task; completed: boole
   );
 }
 
-// -- Home --
 export function HomePage() {
   const { state, toggleTask } = useStudy();
   const isDesktop = useIsDesktop();
@@ -46,7 +46,7 @@ export function HomePage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const prevTodayComplete = useRef(false);
 
-  const plan = useMemo(() => getFullPlan(), []);
+  const plan = useMemo(() => getDynamicPlan(state.completionMap), [state.completionMap]);
   const today = getTodayStr();
   const daysLeft = useMemo(() => Math.max(daysBetween(today, EXAM_DATE), 0), [today]);
 
@@ -94,42 +94,53 @@ export function HomePage() {
   const handleClose = useCallback(() => setShowCelebration(false), []);
 
   return (
-    <div className="max-w-3xl mx-auto animate-in">
+    <div className="max-w-5xl mx-auto animate-in">
       <ConfettiEffect fire={showConfetti} onComplete={() => setShowConfetti(false)} />
       <DailyCompleteModal isOpen={showCelebration} onClose={handleClose} completedTasks={todayTotal} totalMinutes={todayMins} />
 
-      {/* ========== Today ========== */}
+      {/* Today */}
       {activePhase === 'all' && activeSubject === 'all' && (
-        <div className="mb-10">
-          <div className="flex items-baseline justify-between mb-4">
+        <section className="mb-14">
+          <div className="flex items-baseline justify-between mb-5">
             <div>
-              <p className="text-[11px] font-semibold text-text-tertiary uppercase tracking-widest mb-1">Today</p>
-              <h2 className="text-xl font-semibold text-text-primary tracking-tight">
-                {formatDisplayDate(today)} <span className="text-text-tertiary font-normal">{getWeekdayName(new Date(today + 'T00:00:00').getDay())}</span>
+              <h2 className="text-[22px] font-semibold text-text-primary tracking-tight">
+                {formatDisplayDate(today)}
               </h2>
+              <p className="text-[13px] text-text-tertiary mt-0.5">
+                {getWeekdayName(new Date(today + 'T00:00:00').getDay())}
+              </p>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-semibold text-text-primary font-mono">{daysLeft}</span>
-              <span className="text-[13px] text-text-tertiary ml-1">days left</span>
+              <span className="text-[28px] font-semibold text-text-primary font-mono tabular-nums">{daysLeft}</span>
+              <span className="text-[13px] text-text-tertiary ml-2">days left</span>
             </div>
           </div>
 
-          {/* Today card */}
           <div className="card-today p-5">
             {todayPlan.isRestDay ? (
-              <div className="py-6 text-center text-text-tertiary text-[14px]">{todayPlan.note}</div>
+              <div className="py-8 text-center text-text-tertiary text-[14px]">{todayPlan.note}</div>
             ) : (
               <>
-                {/* Stats row */}
-                <div className="flex items-center gap-6 mb-4 text-[13px]">
-                  <span className={`font-mono font-medium ${todayAllDone ? 'text-green' : 'text-accent'}`}>
-                    {todayDoneN}/{todayTotal} tasks
+                <div className="flex items-center gap-5 mb-3 text-[13px]">
+                  <span className={`font-mono font-medium tabular-nums ${todayAllDone ? 'text-[#30a46c]' : 'text-text-primary'}`}>
+                    {todayDoneN}/{todayTotal}
                   </span>
-                  <span className="text-text-tertiary font-mono">{todayH}h{todayM > 0 ? ` ${todayM}m` : ''} planned</span>
-                  <span className="text-text-tertiary">{overallPct}% overall</span>
+                  <span className="text-text-tertiary font-mono">
+                    {todayH}h{todayM > 0 ? ` ${todayM}m` : ''}
+                  </span>
+                  <span className="text-text-tertiary">{overallPct}% done</span>
                 </div>
 
-                {/* Tasks */}
+                {/* Overall progress */}
+                <div className="h-1.5 bg-border-primary rounded-full mb-4 overflow-hidden">
+                  <motion.div
+                    className="h-full bg-text-primary rounded-full origin-left"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: overallPct / 100 }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                  />
+                </div>
+
                 <div className="border-t border-border-primary pt-3 space-y-0.5">
                   {todayPlan.tasks.map((task, i) => (
                     <motion.div
@@ -149,11 +160,11 @@ export function HomePage() {
               </>
             )}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* ========== Filter bar ========== */}
-      <div className="flex items-center gap-1.5 mb-8 overflow-x-auto scrollbar-hide pb-0.5">
+      {/* Filter bar */}
+      <div className="flex items-center gap-1 mb-10 overflow-x-auto scrollbar-hide">
         <FilterPill active={activePhase === 'all'} onClick={() => setActivePhase('all')}>All</FilterPill>
         {PHASES.map((p) => (
           <FilterPill
@@ -161,11 +172,11 @@ export function HomePage() {
             active={activePhase === p.id}
             onClick={() => setActivePhase(p.id)}
           >
-            {p.id === 'foundation' ? 'Foundation' : p.id === 'reinforcement' ? 'Reinforce' : 'Sprint'}
+            {p.name}
           </FilterPill>
         ))}
-        <span className="text-text-tertiary mx-2 text-[10px]">·</span>
-        <FilterPill active={activeSubject === 'all'} onClick={() => setActiveSubject('all')}>All subjects</FilterPill>
+        <span className="w-px h-4 bg-border-primary mx-2 flex-shrink-0" />
+        <FilterPill active={activeSubject === 'all'} onClick={() => setActiveSubject('all')}>All</FilterPill>
         {SUBJECTS.slice(0, isDesktop ? 7 : 4).map((s) => (
           <FilterPill
             key={s.id}
@@ -177,7 +188,7 @@ export function HomePage() {
         ))}
       </div>
 
-      {/* ========== Phase sections ========== */}
+      {/* Phase list */}
       {PHASES.map((p) => {
         const g = phaseGroups[p.id];
         if (!g || g.days.length === 0) return null;
@@ -190,7 +201,7 @@ export function HomePage() {
             completedDays={g.completed}
             totalDays={g.total}
           >
-            <div className={isDesktop ? 'grid grid-cols-2 gap-2' : 'space-y-2'}>
+            <div className={isDesktop ? 'grid grid-cols-3 gap-2' : 'space-y-1.5'}>
               {g.days.map((day) => (
                 <DayCard key={day.date} day={day} isToday={day.date === today} />
               ))}
@@ -199,23 +210,24 @@ export function HomePage() {
         );
       })}
 
-      <div className="h-16" />
+      <div className="h-20" />
     </div>
   );
 }
 
-// -- Filter pill --
 function FilterPill({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button
+    <motion.button
       onClick={onClick}
-      className={`text-[12px] px-3 py-1 rounded-md font-medium whitespace-nowrap transition-colors ${
+      whileHover={{ scale: 1.04 }}
+      whileTap={{ scale: 0.96 }}
+      className={`text-[12px] px-2.5 py-1 rounded font-medium whitespace-nowrap transition-all duration-200 ${
         active
           ? 'bg-text-primary text-bg-primary'
           : 'text-text-tertiary hover:text-text-secondary hover:bg-bg-hover'
       }`}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }

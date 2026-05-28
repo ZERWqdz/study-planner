@@ -11,6 +11,7 @@ interface DayCardProps { day: DayPlan; isToday: boolean }
 export function DayCard({ day, isToday }: DayCardProps) {
   const { state, toggleTask } = useStudy();
   const [open, setOpen] = useState(isToday);
+  const [hovered, setHovered] = useState(false);
   const doneIds = state.completionMap[day.date] ?? [];
   const allDone = day.tasks.length > 0 && day.tasks.every((t) => doneIds.includes(t.id));
   const doneN = day.tasks.filter((t) => doneIds.includes(t.id)).length;
@@ -20,34 +21,43 @@ export function DayCard({ day, isToday }: DayCardProps) {
   return (
     <motion.div
       className={`${isToday ? 'card-today' : 'card'} overflow-hidden`}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+      whileHover={{ scale: 1.005 }}
+      transition={{ duration: 0.15 }}
     >
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-left"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className="w-full flex items-center gap-3 px-4 py-3 text-left group"
       >
         <span className="text-[13px] font-medium text-text-primary">
           {formatDisplayDate(day.date)}
         </span>
         <span className="text-[12px] text-text-tertiary">{getWeekdayName(day.dayOfWeek)}</span>
-        {isToday && <span className="text-[10px] font-semibold text-accent">Today</span>}
-        {hasMock && <span className="text-[10px] text-text-tertiary">· Exam</span>}
+        {isToday && (
+          <span className="text-[10px] font-semibold text-text-primary bg-bg-hover px-1.5 py-0.5 rounded">
+            Today
+          </span>
+        )}
+        {hasMock && <span className="text-[10px] text-text-tertiary">Mock</span>}
         <span className="flex-1" />
         {day.isRestDay ? (
           <span className="text-[11px] text-text-tertiary">Rest</span>
         ) : (
-          <span className={`text-[11px] font-mono ${allDone ? 'text-green' : 'text-text-tertiary'}`}>
+          <motion.span
+            className={`text-[11px] font-mono tabular-nums ${allDone ? 'text-[#30a46c]' : 'text-text-tertiary'}`}
+            animate={{ opacity: hovered ? 1 : 0.7 }}
+            transition={{ duration: 0.15 }}
+          >
             {doneN}/{day.tasks.length}
-          </span>
+          </motion.span>
         )}
         <motion.span
-          animate={{ rotate: open ? 180 : 0 }}
+          animate={{ rotate: open ? 180 : 0, opacity: hovered ? 1 : 0.55 }}
           transition={{ duration: 0.15 }}
-          className="text-text-tertiary text-[10px]"
+          className="text-text-tertiary text-[10px] w-4 text-center"
         >
-          ▼
+          ▾
         </motion.span>
       </button>
 

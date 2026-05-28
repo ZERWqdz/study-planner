@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -13,69 +13,109 @@
   }
 
   body {
-    font-family: 'DM Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    background: #080808;
-    color: #ededed;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
 
   :root {
-    --bg-primary: #080808;
-    --bg-secondary: #0d0d0d;
-    --bg-tertiary: #141414;
-    --bg-hover: #1a1a1a;
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #0f0f0f;
+    --bg-tertiary: #161616;
+    --bg-hover: #1c1c1c;
     --border-primary: #1f1f1f;
     --border-secondary: #2a2a2a;
-    --text-primary: #ededed;
-    --text-secondary: #888888;
-    --text-tertiary: #5c5c5c;
-    --accent: #d4a853;
-    --accent-hover: #e0b963;
-    --accent-muted: rgba(212, 168, 83, 0.08);
+    --text-primary: #f2f2f2;
+    --text-secondary: #999999;
+    --text-tertiary: #6e6e6e;
+    --accent: #f0f0f0;
+    --accent-hover: #ffffff;
+    --accent-muted: rgba(255, 255, 255, 0.04);
     --red: #e5484d;
     --green: #30a46c;
     --blue: #3b82f6;
+    /* 网格 & 光斑 */
+    --grid-opacity: 0.06;
+    --glow-opacity-1: 0.10;
+    --glow-opacity-2: 0.06;
+    --glow-opacity-3: 0.04;
+    --orb-1: radial-gradient(circle at center, rgba(255,255,255,0.14) 0%, rgba(200,200,210,0.05) 35%, transparent 70%);
+    --orb-2: radial-gradient(circle at center, rgba(180,180,200,0.10) 0%, rgba(150,150,170,0.04) 35%, transparent 70%);
+    --orb-3: radial-gradient(circle at center, rgba(220,220,240,0.08) 0%, rgba(180,180,200,0.03) 35%, transparent 70%);
   }
 
   .light {
-    --bg-primary: #ffffff;
-    --bg-secondary: #fafafa;
-    --bg-tertiary: #f5f5f5;
-    --bg-hover: #eeeeee;
+    --bg-primary: #fafafa;
+    --bg-secondary: #f5f5f5;
+    --bg-tertiary: #eeeeee;
+    --bg-hover: #e5e5e5;
     --border-primary: #e5e5e5;
     --border-secondary: #d4d4d4;
-    --text-primary: #171717;
+    --text-primary: #0a0a0a;
     --text-secondary: #737373;
     --text-tertiary: #a3a3a3;
-    --accent: #b8860b;
-    --accent-hover: #9a7209;
-    --accent-muted: rgba(184, 134, 11, 0.06);
+    --accent: #0a0a0a;
+    --accent-hover: #000000;
+    --accent-muted: rgba(0, 0, 0, 0.04);
+    --grid-opacity: 0.08;
+    --glow-opacity-1: 0.05;
+    --glow-opacity-2: 0.04;
+    --glow-opacity-3: 0.03;
+    --orb-1: radial-gradient(circle at center, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.02) 35%, transparent 70%);
+    --orb-2: radial-gradient(circle at center, rgba(100,100,120,0.06) 0%, rgba(100,100,120,0.02) 35%, transparent 70%);
+    --orb-3: radial-gradient(circle at center, rgba(130,130,150,0.04) 0%, rgba(130,130,150,0.015) 35%, transparent 70%);
   }
 
-  ::-webkit-scrollbar { width: 4px; }
+  /* 网格纹理层 */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image: radial-gradient(circle, rgba(128,128,128,1) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: var(--grid-opacity);
+  }
+
+  /* 无障碍：尊重用户动效偏好 */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* 全局 focus-visible 样式 */
+  :focus-visible {
+    outline: 2px solid var(--text-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 0; }
-  ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: #333; }
 }
 
 @layer components {
   .card {
-    border: 1px solid var(--border-primary);
     background: var(--bg-secondary);
-    border-radius: 10px;
-    transition: border-color 150ms ease, background 150ms ease;
+    border-radius: 6px;
+    transition: background 150ms ease;
   }
   .card:hover {
-    border-color: var(--border-secondary);
     background: var(--bg-tertiary);
   }
 
   .card-today {
-    border: 1px solid var(--border-secondary);
     background: var(--bg-tertiary);
-    border-radius: 10px;
+    border-radius: 6px;
   }
 
   .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }

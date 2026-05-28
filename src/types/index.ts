@@ -18,6 +18,7 @@ export interface Task {
   description?: string;
   taskType: TaskType;
   estimatedMinutes: number;
+  carryOver?: boolean;
 }
 
 export interface DayPlan {

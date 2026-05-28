@@ -1,6 +1,6 @@
 import type { DayPlan, Task, PhaseId, SubjectId } from '@/types';
 import { nanoid } from 'nanoid';
-import { formatDate, addDaysToStr } from '@/utils/date';
+import { formatDate, addDaysToStr, getTodayStr } from '@/utils/date';
 import { START_DATE, EXAM_DATE } from '@/utils/constants';
 import {
   getMathDailyTemplate,
@@ -21,6 +21,68 @@ export function getFullPlan(): DayPlan[] {
   if (_planCache) return _planCache;
   _planCache = generateStudyPlan();
   return _planCache;
+}
+
+export function clearPlanCache(): void {
+  _planCache = null;
+}
+
+/**
+ * 动态计划：根据完成状态，将历史未完成任务重新分配到今日及未来天数
+ */
+export function getDynamicPlan(completionMap: Record<string, string[]>): DayPlan[] {
+  const basePlan = getFullPlan();
+  const today = getTodayStr();
+
+  // 1. 收集所有历史未完成任务
+  const carryOver: Task[] = [];
+
+  for (const day of basePlan) {
+    if (day.date >= today) break;
+    if (day.isRestDay) continue;
+    const done = completionMap[day.date] ?? [];
+    for (const task of day.tasks) {
+      if (!done.includes(task.id)) {
+        carryOver.push({
+          ...task,
+          id: generateId(),
+          carryOver: true,
+          title: `[补] ${task.title}`,
+        });
+      }
+    }
+  }
+
+  if (carryOver.length === 0) return basePlan;
+
+  // 2. 找到未来非休息日（从今天开始）
+  const futureIndices: number[] = [];
+  for (let i = 0; i < basePlan.length; i++) {
+    if (basePlan[i].date >= today && !basePlan[i].isRestDay) {
+      futureIndices.push(i);
+    }
+  }
+
+  if (futureIndices.length === 0) return basePlan;
+
+  // 3. 均匀分配补做任务，每天最多2个
+  const maxPerDay = Math.min(2, Math.ceil(carryOver.length / futureIndices.length));
+  let taskCursor = 0;
+
+  const augmentedPlan = basePlan.map((day, idx) => {
+    if (!futureIndices.includes(idx)) return day;
+    if (taskCursor >= carryOver.length) return day;
+
+    const slice = carryOver.slice(taskCursor, taskCursor + maxPerDay);
+    taskCursor += maxPerDay;
+
+    return {
+      ...day,
+      tasks: [...day.tasks, ...slice],
+    };
+  });
+
+  return augmentedPlan;
 }
 
 export function getTodayPlan(): DayPlan {

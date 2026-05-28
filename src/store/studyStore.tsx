@@ -2,7 +2,7 @@ import { createContext, useContext, useReducer, useCallback, type ReactNode } fr
 import type { AppState } from '@/types';
 import { loadState, saveState, setTheme as saveTheme } from '@/utils/storage';
 import { getTodayStr } from '@/utils/date';
-import { getFullPlan } from '@/data/planGenerator';
+import { getDynamicPlan } from '@/data/planGenerator';
 
 interface StudyContextValue {
   state: AppState;
@@ -64,7 +64,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
 
   const isTodayComplete = (() => {
     const today = getTodayStr();
-    const plan = getFullPlan();
+    const plan = getDynamicPlan(state.completionMap);
     const day = plan.find((d) => d.date === today);
     if (!day || day.isRestDay || day.tasks.length === 0) return false;
     const done = state.completionMap[today] ?? [];

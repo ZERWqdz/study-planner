@@ -17,16 +17,17 @@ export function TaskItem({ task, completed, onToggle, index }: TaskItemProps) {
 
   return (
     <motion.div
-      className={`flex items-center gap-3 py-2 px-1 rounded-md transition-colors ${
-        completed ? 'opacity-40' : 'hover:bg-bg-hover'
+      className={`flex items-center gap-3 py-2 px-2 rounded-md transition-colors ${
+        completed ? 'opacity-55' : 'hover:bg-bg-hover cursor-pointer'
       }`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: index * 0.03, duration: 0.15 }}
+      initial={{ opacity: 0, x: -4 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.02, duration: 0.2 }}
+      whileTap={completed ? undefined : { scale: 0.995 }}
     >
       <Checkbox checked={completed} onChange={onToggle} color={subj?.color} size={18} />
 
-      <span className="flex-1 text-[13px] text-text-primary truncate">
+      <span className={`flex-1 text-[13px] truncate ${task.carryOver ? 'text-accent-hover' : 'text-text-primary'}`}>
         {task.title}
       </span>
 
