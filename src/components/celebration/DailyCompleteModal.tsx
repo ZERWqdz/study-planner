@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Modal } from '@/components/ui/Modal';
-import { Trophy, Star, ArrowRight } from 'lucide-react';
+import { Trophy, Star, Zap } from 'lucide-react';
 import { MOTIVATIONAL_QUOTES } from '@/utils/constants';
 import { useMemo } from 'react';
 
@@ -18,71 +18,98 @@ export function DailyCompleteModal({ isOpen, onClose, completedTasks, totalMinut
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} showClose={false}>
-      <div className="card p-6 text-center relative overflow-hidden">
-        {/* 背景装饰 */}
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent pointer-events-none" />
+      <div className="card-hero p-6 sm:p-8 text-center relative">
+        {/* 背景光晕 */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full pointer-events-none"
+          style={{ background: 'var(--gradient-glow)', filter: 'blur(40px)' }}
+        />
 
-        <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-          className="mx-auto mb-4 w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center"
-        >
-          <Trophy size={32} className="text-amber-400" />
-        </motion.div>
-
-        <motion.h2
-          className="text-xl font-bold text-slate-100 mb-1"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          太棒了！今日任务全部完成！
-        </motion.h2>
-
-        <motion.div
-          className="flex items-center justify-center gap-4 my-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <div className="text-center">
-            <div className="text-2xl font-bold text-amber-400">{completedTasks}</div>
-            <div className="text-xs text-slate-500">完成项</div>
-          </div>
-          <div className="w-px h-8 bg-slate-700" />
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-400">
-              {hours > 0 ? `${hours}h${mins > 0 ? mins + 'm' : ''}` : `${mins}m`}
+        <div className="relative z-10">
+          {/* 奖杯 */}
+          <motion.div
+            className="mx-auto mb-5"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+          >
+            <div className="relative mx-auto w-20 h-20 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <Trophy size={36} className="text-amber-400" />
+              <motion.div
+                className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Zap size={12} className="text-black" />
+              </motion.div>
             </div>
-            <div className="text-xs text-slate-500">学习时长</div>
-          </div>
-          <div className="w-px h-8 bg-slate-700" />
-          <div className="text-center">
-            <Star size={24} className="text-amber-400 mx-auto mb-0.5" />
-            <div className="text-xs text-slate-500">连续打卡</div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        <motion.blockquote
-          className="text-sm text-slate-400 italic my-4 px-4 py-2 border-l-2 border-amber-500/50 bg-white/[0.02] rounded-r"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          "{quote}"
-        </motion.blockquote>
+          <motion.h2
+            className="text-xl sm:text-2xl font-bold text-slate-100 mb-1 tracking-tight"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            今日任务全部完成！
+          </motion.h2>
+          <motion.p
+            className="text-sm text-slate-500 mb-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            继续保持，考研必胜
+          </motion.p>
 
-        <motion.button
-          onClick={onClose}
-          className="mt-2 px-6 py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-medium text-sm transition-colors inline-flex items-center gap-2"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          继续加油
-          <ArrowRight size={16} />
-        </motion.button>
+          {/* 数据面板 */}
+          <motion.div
+            className="grid grid-cols-3 gap-3 mb-5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <div className="glass p-3 rounded-xl">
+              <div className="text-lg font-bold text-slate-100 font-mono">{completedTasks}</div>
+              <div className="text-[10px] text-slate-500">完成项</div>
+            </div>
+            <div className="glass p-3 rounded-xl">
+              <div className="text-lg font-bold text-green-400 font-mono">
+                {hours > 0 ? `${hours}h` : `${mins}m`}
+              </div>
+              <div className="text-[10px] text-slate-500">学习时长</div>
+            </div>
+            <div className="glass p-3 rounded-xl flex flex-col items-center justify-center">
+              <Star size={18} className="text-amber-400 mb-0.5" />
+              <div className="text-[10px] text-slate-500">打卡成功</div>
+            </div>
+          </motion.div>
+
+          {/* 励志语录 */}
+          <motion.blockquote
+            className="text-sm text-slate-400 italic mb-5 px-4 py-3 border-l-2 border-amber-500/30 bg-white/[0.02] rounded-r-lg text-left"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            "{quote}"
+          </motion.blockquote>
+
+          <motion.button
+            onClick={onClose}
+            className="px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-105 active:scale-95"
+            style={{
+              background: 'var(--gradient-hero)',
+              color: '#000',
+              boxShadow: '0 4px 20px var(--accent-glow)',
+            }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            继续加油
+          </motion.button>
+        </div>
       </div>
     </Modal>
   );

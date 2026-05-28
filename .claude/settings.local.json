@@ -18,7 +18,11 @@
       "Bash(git config *)",
       "Bash(git init *)",
       "Bash(gh repo *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "WebFetch(domain:motionsites.ai)",
+      "Bash(curl *)"
     ]
   }
 }

@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { Home, Calendar, BarChart3 } from 'lucide-react';
 
 interface BottomNavProps {
@@ -13,20 +14,32 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0F1A2E]/95 backdrop-blur-md border-t border-slate-800 lg:hidden safe-area-bottom">
-      <div className="flex items-center justify-around h-14">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
+      {/* 玻璃背景 */}
+      <div className="absolute inset-0 bg-[#030712]/90 backdrop-blur-2xl border-t border-white/[0.06]" />
+
+      <div className="relative flex items-center justify-around h-16 safe-area-bottom">
         {tabs.map(({ id, label, Icon }) => {
           const isActive = activeTab === id;
           return (
             <button
               key={id}
               onClick={() => onTabChange(id)}
-              className={`flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-full transition-colors ${
-                isActive ? 'text-amber-400' : 'text-slate-500'
+              className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[72px] h-full transition-all duration-300 ${
+                isActive ? 'text-amber-400' : 'text-slate-600 hover:text-slate-400'
               }`}
             >
+              {/* 活跃指示器 */}
+              {isActive && (
+                <motion.div
+                  layoutId="bottomNav"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
+                  style={{ background: 'var(--gradient-hero)' }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
               <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
-              <span className="text-[10px] font-medium">{label}</span>
+              <span className="text-[10px] font-semibold">{label}</span>
             </button>
           );
         })}

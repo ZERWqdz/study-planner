@@ -19,31 +19,39 @@ export function PhaseSection({ phaseId, startDate, endDate, completedDays, total
 
   return (
     <motion.div
-      className="flex items-center gap-4 px-4 py-2 mb-2"
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
+      className="flex items-center gap-3 px-1 py-1.5 mb-3"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
     >
-      <span className="text-2xl">{emoji}</span>
-      <div className="flex-1">
-        <div className="flex items-center justify-between mb-0.5">
+      <div
+        className="flex items-center justify-center w-8 h-8 rounded-xl flex-shrink-0"
+        style={{ backgroundColor: `${phase.color}12` }}
+      >
+        <span className="text-base">{emoji}</span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between mb-1">
           <span className="text-sm font-bold" style={{ color: phase.color }}>
             {phase.name}
           </span>
-          <span className="text-xs text-slate-500">
+          <span className="text-[10px] text-slate-600 font-mono">
             {startDate} — {endDate}
           </span>
         </div>
-        <div className="h-1.5 rounded-full bg-slate-700 overflow-hidden">
+        <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
           <motion.div
-            className="h-full rounded-full"
-            style={{ backgroundColor: phase.color }}
+            className="h-full rounded-full transition-all duration-700"
+            style={{
+              background: `linear-gradient(90deg, ${phase.color}, ${phase.color}88)`,
+              boxShadow: `0 0 8px ${phase.color}30`,
+            }}
             initial={{ width: 0 }}
-            animate={{ width: `${ratio}%` }}
+            animate={{ width: `${Math.max(ratio, 2)}%` }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
           />
         </div>
       </div>
-      <span className="text-xs font-mono text-slate-400">{completedDays}/{totalDays}天</span>
+      <span className="text-[11px] font-mono text-slate-500 flex-shrink-0">{completedDays}/{totalDays}</span>
     </motion.div>
   );
 }

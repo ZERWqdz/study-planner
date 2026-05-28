@@ -1,15 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html {
     scroll-behavior: smooth;
@@ -17,63 +13,128 @@
   }
 
   body {
-    font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-family: 'Space Grotesk', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
   }
 
   :root {
-    --color-bg: #0B1121;
-    --color-surface: #1E293B;
-    --color-surface-hover: #334155;
-    --color-border: #334155;
+    --color-bg: #030712;
+    --color-bg-elevated: #0A0F1E;
+    --color-surface: #111827;
+    --color-surface-hover: #1A2332;
+    --color-border: #1E293B;
+    --color-border-light: #2A3548;
     --color-text: #F1F5F9;
     --color-text-secondary: #94A3B8;
+    --color-text-muted: #64748B;
+    --accent: #F59E0B;
+    --accent-glow: rgba(245, 158, 11, 0.3);
+    --accent-subtle: rgba(245, 158, 11, 0.08);
+    --gradient-hero: linear-gradient(135deg, #F59E0B 0%, #F97316 50%, #EF4444 100%);
+    --gradient-card: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(239, 68, 68, 0.06) 100%);
+    --gradient-glow: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
   }
 
   .light {
     --color-bg: #F8FAFC;
+    --color-bg-elevated: #FFFFFF;
     --color-surface: #FFFFFF;
     --color-surface-hover: #F1F5F9;
     --color-border: #E2E8F0;
+    --color-border-light: #CBD5E1;
     --color-text: #0F172A;
-    --color-text-secondary: #64748B;
+    --color-text-secondary: #475569;
+    --color-text-muted: #94A3B8;
+    --accent: #D97706;
+    --accent-glow: rgba(217, 119, 6, 0.2);
+    --accent-subtle: rgba(217, 119, 6, 0.06);
+    --gradient-hero: linear-gradient(135deg, #D97706 0%, #EA580C 50%, #DC2626 100%);
+    --gradient-card: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, rgba(220, 38, 38, 0.04) 100%);
+    --gradient-glow: radial-gradient(ellipse at center, rgba(217, 119, 6, 0.08) 0%, transparent 70%);
   }
 
   /* 自定义滚动条 */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #475569;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #64748B;
-  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #475569; }
 }
 
 @layer components {
+  /* 卡片基础样式 */
   .card {
-    @apply rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] transition-all duration-300;
+    @apply rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] transition-all duration-500;
   }
-
   .card:hover {
-    @apply border-slate-500;
+    border-color: var(--color-border-light);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
   }
 
+  /* Hero卡片 - 用于今日待办 */
+  .card-hero {
+    background: var(--color-bg-elevated);
+    border: 1px solid transparent;
+    border-radius: 1.25rem;
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 40px var(--accent-glow), 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .card-hero::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 1.25rem;
+    padding: 1px;
+    background: var(--gradient-hero);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.8;
+  }
+  .card-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1.25rem;
+    background: var(--gradient-card);
+    pointer-events: none;
+  }
+
+  /* 玻璃拟态 */
   .glass {
-    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl;
+  }
+  .glass-strong {
+    @apply bg-white/[0.06] backdrop-blur-2xl border border-white/[0.08] rounded-2xl;
   }
 
+  /* 渐变文字 */
+  .text-gradient {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* 发光徽章 */
+  .badge-glow {
+    position: relative;
+  }
+  .badge-glow::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: var(--gradient-hero);
+    opacity: 0.3;
+    filter: blur(8px);
+    z-index: -1;
+  }
+
+  /* Safe area */
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
@@ -82,13 +143,16 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
+
+  /* 动画延迟工具 */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
 }

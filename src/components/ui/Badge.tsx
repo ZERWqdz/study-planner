@@ -8,13 +8,13 @@ interface BadgeProps {
 }
 
 export function Badge({ children, color = '#3B82F6', variant = 'filled', size = 'sm' }: BadgeProps) {
-  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
+  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1 text-xs';
 
   if (variant === 'filled') {
     return (
       <span
-        className={`inline-flex items-center rounded-full font-medium ${sizeClasses}`}
-        style={{ backgroundColor: `${color}20`, color }}
+        className={`inline-flex items-center rounded-lg font-semibold ${sizeClasses} transition-all`}
+        style={{ backgroundColor: `${color}14`, color }}
       >
         {children}
       </span>
@@ -23,8 +23,8 @@ export function Badge({ children, color = '#3B82F6', variant = 'filled', size = 
 
   return (
     <span
-      className={`inline-flex items-center rounded-full font-medium border ${sizeClasses}`}
-      style={{ borderColor: `${color}40`, color }}
+      className={`inline-flex items-center rounded-lg font-semibold border ${sizeClasses} transition-all`}
+      style={{ borderColor: `${color}30`, color }}
     >
       {children}
     </span>
