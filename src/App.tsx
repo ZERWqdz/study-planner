@@ -10,14 +10,9 @@ export default function App() {
     <StudyProvider>
       <AppShell activeTab={activeTab} onTabChange={setActiveTab}>
         {activeTab === 'home' && <HomePage />}
-        {activeTab === 'calendar' && (
-          <div className="flex items-center justify-center py-20 text-slate-500">
-            <p>月历视图即将上线</p>
-          </div>
-        )}
-        {activeTab === 'stats' && (
-          <div className="flex items-center justify-center py-20 text-slate-500">
-            <p>统计页面即将上线</p>
+        {activeTab !== 'home' && (
+          <div className="flex items-center justify-center py-32 text-text-tertiary text-[14px]">
+            Coming soon
           </div>
         )}
       </AppShell>

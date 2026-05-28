@@ -7,50 +7,35 @@ interface CheckboxProps {
   size?: number;
 }
 
-export function Checkbox({ checked, onChange, color = '#22C55E', size = 24 }: CheckboxProps) {
+export function Checkbox({ checked, onChange, color = '#30a46c', size = 18 }: CheckboxProps) {
   return (
-    <motion.button
+    <button
       onClick={onChange}
       className="relative flex-shrink-0 cursor-pointer focus:outline-none"
       style={{ width: size, height: size }}
-      aria-label={checked ? '取消完成' : '标记完成'}
-      whileTap={{ scale: 0.85 }}
+      aria-label={checked ? 'Mark incomplete' : 'Mark complete'}
     >
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-        {/* 外圈 */}
-        <motion.circle
-          cx={12} cy={12} r={10}
-          stroke={checked ? color : 'rgba(255,255,255,0.15)'}
-          strokeWidth={2}
+      <svg width={size} height={size} viewBox="0 0 18 18" fill="none">
+        <rect
+          x={1} y={1} width={16} height={16} rx={3}
+          stroke={checked ? color : 'var(--border-secondary)'}
+          strokeWidth={1.5}
           fill={checked ? color : 'transparent'}
-          animate={{
-            stroke: checked ? color : 'rgba(255,255,255,0.15)',
-            fill: checked ? color : 'transparent',
-          }}
-          transition={{ duration: 0.3 }}
+          style={{ transition: 'fill 150ms ease, stroke 150ms ease' }}
         />
-        {/* 勾选标记 */}
         {checked && (
           <motion.path
-            d="M7 12.5L10.5 16L17 9"
+            d="M5 9l2.5 2.5L13 6"
             stroke="white"
-            strokeWidth={2.5}
+            strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 0.25, ease: 'easeOut', delay: 0.1 }}
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
           />
         )}
       </svg>
-      {/* 涟漪效果 */}
-      <motion.div
-        className="absolute inset-0 rounded-full"
-        style={{ backgroundColor: color }}
-        initial={false}
-        animate={checked ? { scale: 2.5, opacity: 0 } : {}}
-        transition={{ duration: 0.6 }}
-      />
-    </motion.button>
+    </button>
   );
 }

@@ -13,9 +13,9 @@ export function AppShell({ children, activeTab, onTabChange }: AppShellProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
+    <div className="min-h-screen bg-bg-primary text-text-primary">
       <Header />
-      <main className={`max-w-7xl mx-auto px-4 py-4 ${isMobile ? 'pb-20' : 'pb-8'}`}>
+      <main className={`px-5 py-6 ${isMobile ? 'pb-20' : 'pb-12'}`}>
         {children}
       </main>
       {isMobile && <BottomNav activeTab={activeTab} onTabChange={onTabChange} />}

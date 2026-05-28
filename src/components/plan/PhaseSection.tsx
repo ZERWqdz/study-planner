@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { PhaseId } from '@/types';
 import { PHASES } from '@/utils/constants';
 
@@ -8,50 +9,66 @@ interface PhaseSectionProps {
   endDate: string;
   completedDays: number;
   totalDays: number;
+  children?: React.ReactNode;
 }
 
-export function PhaseSection({ phaseId, startDate, endDate, completedDays, totalDays }: PhaseSectionProps) {
+export function PhaseSection({ phaseId, startDate, endDate, completedDays, totalDays, children }: PhaseSectionProps) {
+  const [collapsed, setCollapsed] = useState(false);
   const phase = PHASES.find((p) => p.id === phaseId);
   if (!phase) return null;
 
-  const ratio = totalDays > 0 ? Math.round((completedDays / totalDays) * 100) : 0;
-  const emoji = phaseId === 'foundation' ? '🌱' : phaseId === 'reinforcement' ? '🔥' : '🚀';
+  const pct = totalDays > 0 ? Math.round((completedDays / totalDays) * 100) : 0;
 
   return (
-    <motion.div
-      className="flex items-center gap-3 px-1 py-1.5 mb-3"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      <div
-        className="flex items-center justify-center w-8 h-8 rounded-xl flex-shrink-0"
-        style={{ backgroundColor: `${phase.color}12` }}
+    <div className="mb-8">
+      {/* Phase header — clickable to collapse */}
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="w-full flex items-center gap-3 py-2 mb-3 group cursor-pointer"
       >
-        <span className="text-base">{emoji}</span>
+        <span className="text-sm font-semibold text-text-primary tracking-tight">
+          {phaseId === 'foundation' ? 'Foundation' : phaseId === 'reinforcement' ? 'Reinforcement' : 'Sprint'}
+        </span>
+        <span className="text-[11px] text-text-tertiary font-mono">
+          {startDate} — {endDate}
+        </span>
+        <span className="flex-1" />
+        <span className="text-[11px] text-text-tertiary font-mono">
+          {completedDays}/{totalDays}
+        </span>
+        <motion.span
+          animate={{ rotate: collapsed ? -90 : 0 }}
+          transition={{ duration: 0.15 }}
+          className="text-text-tertiary text-[10px]"
+        >
+          ▼
+        </motion.span>
+      </button>
+
+      {/* Progress bar */}
+      <div className="h-px bg-border-primary mb-3">
+        <motion.div
+          className="h-full bg-text-primary origin-left"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: pct / 100 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        />
       </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-sm font-bold" style={{ color: phase.color }}>
-            {phase.name}
-          </span>
-          <span className="text-[10px] text-slate-600 font-mono">
-            {startDate} — {endDate}
-          </span>
-        </div>
-        <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+
+      {/* Children (day cards) */}
+      <AnimatePresence initial={false}>
+        {!collapsed && (
           <motion.div
-            className="h-full rounded-full transition-all duration-700"
-            style={{
-              background: `linear-gradient(90deg, ${phase.color}, ${phase.color}88)`,
-              boxShadow: `0 0 8px ${phase.color}30`,
-            }}
-            initial={{ width: 0 }}
-            animate={{ width: `${Math.max(ratio, 2)}%` }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-          />
-        </div>
-      </div>
-      <span className="text-[11px] font-mono text-slate-500 flex-shrink-0">{completedDays}/{totalDays}</span>
-    </motion.div>
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

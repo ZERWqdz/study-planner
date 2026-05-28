@@ -22,7 +22,8 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "WebFetch(domain:motionsites.ai)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "WebFetch(domain:variant.com)"
     ]
   }
 }

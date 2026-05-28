@@ -4,148 +4,72 @@ import type { DayPlan } from '@/types';
 import { TaskItem } from './TaskItem';
 import { useStudy } from '@/store/studyStore';
 import { formatDisplayDate, getWeekdayName } from '@/utils/date';
-import { PHASES } from '@/utils/constants';
 import { getMilestonesForDate } from '@/data/milestones';
-import { ChevronDown, Trophy, Sparkles } from 'lucide-react';
 
-interface DayCardProps {
-  day: DayPlan;
-  isToday: boolean;
-}
+interface DayCardProps { day: DayPlan; isToday: boolean }
 
 export function DayCard({ day, isToday }: DayCardProps) {
   const { state, toggleTask } = useStudy();
-  const [expanded, setExpanded] = useState(isToday);
-  const completedIds = state.completionMap[day.date] ?? [];
-
-  const allComplete = day.tasks.length > 0 && day.tasks.every((t) => completedIds.includes(t.id));
-  const completedCount = day.tasks.filter((t) => completedIds.includes(t.id)).length;
-  const progressPct = day.tasks.length > 0 ? Math.round((completedCount / day.tasks.length) * 100) : 0;
-  const phase = PHASES.find((p) => p.id === day.phaseId);
+  const [open, setOpen] = useState(isToday);
+  const doneIds = state.completionMap[day.date] ?? [];
+  const allDone = day.tasks.length > 0 && day.tasks.every((t) => doneIds.includes(t.id));
+  const doneN = day.tasks.filter((t) => doneIds.includes(t.id)).length;
   const milestones = useMemo(() => getMilestonesForDate(day.date), [day.date]);
-  const hasMockExam = milestones.some((m) => m.type === 'mock-exam');
+  const hasMock = milestones.some((m) => m.type === 'mock-exam');
 
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, y: 16 }}
+      className={`${isToday ? 'card-today' : 'card'} overflow-hidden`}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className={`card overflow-hidden group ${
-        isToday ? 'ring-1 ring-amber-500/40 shadow-lg shadow-amber-500/5' : ''
-      } ${allComplete ? 'ring-1 ring-green-500/30' : ''}`}
+      transition={{ duration: 0.25 }}
     >
-      {/* 顶部进度条 */}
-      {!day.isRestDay && (
-        <div className="h-0.5 bg-white/[0.04]">
-          <motion.div
-            className="h-full"
-            style={{
-              background: allComplete
-                ? 'linear-gradient(90deg, #22C55E, #10B981)'
-                : `linear-gradient(90deg, ${phase?.color ?? '#475569'}, ${phase?.color ?? '#475569'}88)`,
-            }}
-            initial={{ width: 0 }}
-            animate={{ width: `${Math.max(progressPct, 3)}%` }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-          />
-        </div>
-      )}
-
-      {/* 头部 */}
       <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 py-3 transition-colors hover:bg-white/[0.02]"
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-3 px-4 py-3 text-left"
       >
-        <div className="flex items-center gap-2.5">
-          <div className="text-left">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-200">
-                {formatDisplayDate(day.date)}
-              </span>
-              <span className="text-[11px] text-slate-600">{getWeekdayName(day.dayOfWeek)}</span>
-              {isToday && (
-                <span className="text-[10px] px-1.5 py-px rounded-md bg-amber-500/15 text-amber-400 font-semibold">
-                  今天
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {allComplete && <Trophy size={13} className="text-amber-400" />}
-          {hasMockExam && <Sparkles size={13} className="text-blue-400" />}
-          {day.isRestDay ? (
-            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 font-medium">休息</span>
-          ) : (
-            day.tasks.length > 0 && (
-              <span
-                className={`text-[11px] font-mono font-semibold ${
-                  allComplete ? 'text-green-400' : 'text-slate-500'
-                }`}
-              >
-                {completedCount}/{day.tasks.length}
-              </span>
-            )
-          )}
-          <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.3 }}>
-            <ChevronDown size={15} className="text-slate-600" />
-          </motion.div>
-        </div>
+        <span className="text-[13px] font-medium text-text-primary">
+          {formatDisplayDate(day.date)}
+        </span>
+        <span className="text-[12px] text-text-tertiary">{getWeekdayName(day.dayOfWeek)}</span>
+        {isToday && <span className="text-[10px] font-semibold text-accent">Today</span>}
+        {hasMock && <span className="text-[10px] text-text-tertiary">· Exam</span>}
+        <span className="flex-1" />
+        {day.isRestDay ? (
+          <span className="text-[11px] text-text-tertiary">Rest</span>
+        ) : (
+          <span className={`text-[11px] font-mono ${allDone ? 'text-green' : 'text-text-tertiary'}`}>
+            {doneN}/{day.tasks.length}
+          </span>
+        )}
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.15 }}
+          className="text-text-tertiary text-[10px]"
+        >
+          ▼
+        </motion.span>
       </button>
 
-      {/* 展开内容 */}
-      <AnimatePresence>
-        {expanded && (
+      <AnimatePresence initial={false}>
+        {open && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.15 }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-3 pt-0.5 space-y-0.5">
+            <div className="px-4 pb-3 border-t border-border-primary">
               {day.isRestDay ? (
-                <div className="py-6 text-center">
-                  <div className="text-3xl mb-2">🌴</div>
-                  <p className="text-sm text-slate-500">{day.note}</p>
-                </div>
+                <div className="py-6 text-center text-[13px] text-text-tertiary">{day.note}</div>
               ) : (
-                <>
-                  {/* 标签 */}
-                  <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-                    {phase && (
-                      <span
-                        className="text-[10px] px-2 py-0.5 rounded-lg font-semibold"
-                        style={{ backgroundColor: `${phase.color}12`, color: phase.color }}
-                      >
-                        {phase.name}
-                      </span>
-                    )}
-                    {hasMockExam && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-lg bg-blue-500/12 text-blue-400 font-semibold">
-                        模拟考试
-                      </span>
-                    )}
-                  </div>
-
-                  {day.tasks.map((task, idx) => (
-                    <TaskItem
-                      key={task.id}
-                      task={task}
-                      completed={completedIds.includes(task.id)}
-                      onToggle={() => toggleTask(day.date, task.id)}
-                      index={idx}
-                    />
+                <div className="pt-2 space-y-0.5">
+                  {day.tasks.map((task, i) => (
+                    <TaskItem key={task.id} task={task} completed={doneIds.includes(task.id)} onToggle={() => toggleTask(day.date, task.id)} index={i} />
                   ))}
-
-                  {day.note && (
-                    <p className="text-[11px] text-slate-600 mt-2 pt-2 border-t border-white/[0.04] leading-relaxed">
-                      {day.note}
-                    </p>
-                  )}
-                </>
+                  {day.note && <p className="text-[11px] text-text-tertiary mt-2 pt-2 border-t border-border-primary">{day.note}</p>}
+                </div>
               )}
             </div>
           </motion.div>
